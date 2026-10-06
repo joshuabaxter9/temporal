@@ -27,10 +27,28 @@ async function waitForPort(port, timeoutMs = 60_000) {
   throw new Error(`Temporal did not become ready on port ${port}.`);
 }
 
+// Temporal opens its port before the gRPC frontend is ready — on a fresh
+// volume the gap can be several seconds — so wait until a real call succeeds
+// rather than letting the Worker's first connection be reset.
+async function waitForTemporal(timeoutMs = 90_000) {
+  const { Connection } = await import("@temporalio/client");
+  const deadline = Date.now() + timeoutMs;
+  let lastError;
+  while (Date.now() < deadline) {
+    try {
+      const connection = await Connection.connect({ address: "127.0.0.1:7233" });
+      await connection.close();
+      return;
+    } catch (error) {
+      lastError = error;
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    }
+  }
+  throw new Error(`Temporal did not answer within ${timeoutMs / 1000}s: ${lastError?.message ?? lastError}`);
+}
+
 await waitForPort(7233);
-// Temporal's port opens slightly before its gRPC service answers; give it a beat
-// so the Worker's first connection isn't reset on a cold start.
-await new Promise((resolve) => setTimeout(resolve, 1500));
+await waitForTemporal();
 
 // Spawn tsx directly (not via `npm run`) so a SIGTERM reaches the real process
 // and nothing is left holding port 3000 after shutdown.
