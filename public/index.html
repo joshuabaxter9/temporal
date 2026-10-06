@@ -3,31 +3,75 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Temporal assessment starter</title>
+    <title>Juniper Salon — Open chair</title>
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
     <main>
-      <p class="eyebrow">Temporal assessment starter</p>
-      <h1>Your environment is connected.</h1>
-      <p class="intro">
-        This neutral demonstration starts a Workflow, waits durably for a
-        Signal, and then completes. Replace it with the experience your
-        customer needs.
-      </p>
-      <section class="card">
-        <h2 id="phase">Ready</h2>
-        <p id="message">Start the demonstration to verify the setup.</p>
-        <button id="start">Start demo Workflow</button>
-        <button id="continue" hidden>Send continue Signal</button>
-        <p class="request-id" id="request-id"></p>
-      </section>
+      <header class="masthead">
+        <div>
+          <p class="eyebrow">Juniper Salon · staff</p>
+          <h1>Open chair</h1>
+          <p class="intro">
+            Enter a cancelled appointment and the system works the waitlist for you:
+            it texts clients a few at a time, moves on when they decline or don't answer,
+            and makes sure only one person can take the slot.
+          </p>
+        </div>
+        <button id="reset" class="ghost" title="Restore the demo waitlist and clear sent texts">Reset demo</button>
+      </header>
+
+      <div class="layout">
+        <div class="column">
+          <section class="card">
+            <h2>Enter an opening</h2>
+            <form id="opening-form">
+              <div class="row">
+                <label>Stylist <select name="stylist" id="stylist" required></select></label>
+                <label>Service <select name="service" id="service" required></select></label>
+              </div>
+              <div class="row">
+                <label>Starts <input type="datetime-local" name="startAt" id="startAt" required /></label>
+                <label>Length (min) <input type="number" name="durationMinutes" id="durationMinutes" min="5" step="5" required /></label>
+              </div>
+              <div class="row">
+                <label>Entered by <input type="text" name="enteredBy" placeholder="Front desk" /></label>
+              </div>
+              <details class="demo-options">
+                <summary>Demo options</summary>
+                <div class="row">
+                  <label>Offers per round <input type="number" name="offersPerRound" value="3" min="1" max="10" /></label>
+                  <label>Response window (seconds) <input type="number" name="responseWindowSeconds" placeholder="default: 15 min same-day" min="5" /></label>
+                </div>
+                <p class="hint">Leave the window blank to use the real rule: 15 minutes for same-day openings, 2 hours otherwise. Set it to e.g. 45 to watch offers expire during a demo.</p>
+              </details>
+              <button type="submit" id="submit">Find someone for this slot</button>
+              <p class="error" id="form-error" hidden></p>
+            </form>
+          </section>
+
+          <section id="openings"></section>
+        </div>
+
+        <aside class="column">
+          <section class="card">
+            <h2>Client phones <span class="muted">(simulated texts)</span></h2>
+            <p class="hint">Every text the system sends shows up here. Open a link to act as that client.</p>
+            <div id="messages" class="messages"></div>
+          </section>
+          <section class="card">
+            <h2>Waitlist</h2>
+            <p class="hint">Clients who asked to be told about an earlier appointment.</p>
+            <div id="waitlist"></div>
+          </section>
+        </aside>
+      </div>
+
       <p class="footer">
-        Inspect the execution at
-        <a href="http://localhost:8233" target="_blank">localhost:8233</a>.
+        Every opening is one Temporal Workflow. Inspect them at
+        <a href="http://localhost:8233" target="_blank" rel="noreferrer">localhost:8233</a>.
       </p>
     </main>
     <script src="/app.js"></script>
   </body>
 </html>
-

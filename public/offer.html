@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Juniper Salon — Earlier appointment</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body class="client">
+    <main class="narrow">
+      <p class="eyebrow">Juniper Salon</p>
+      <section class="card" id="offer">
+        <h2 id="headline">One moment…</h2>
+        <p id="detail"></p>
+        <p class="hint" id="deadline"></p>
+        <div id="actions" hidden>
+          <button id="accept">Yes, book me</button>
+          <button id="decline" class="ghost">Not this time</button>
+          <p class="hint remove-hint">
+            Declining keeps you on the waitlist for the next opening.
+            <button id="remove" class="link">Take me off the waitlist</button>
+          </p>
+        </div>
+        <p class="result" id="outcome" hidden></p>
+      </section>
+    </main>
+    <script src="/offer.js"></script>
+  </body>
+</html>

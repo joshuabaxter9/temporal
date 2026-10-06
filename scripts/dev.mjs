@@ -1,5 +1,6 @@
 import { connect } from "node:net";
 import { spawn, spawnSync } from "node:child_process";
+import { createRequire } from "node:module";
 
 const compose = spawnSync("docker", ["compose", "up", "-d", "temporal"], {
   stdio: "inherit",
@@ -27,9 +28,16 @@ async function waitForPort(port, timeoutMs = 60_000) {
 }
 
 await waitForPort(7233);
+// Temporal's port opens slightly before its gRPC service answers; give it a beat
+// so the Worker's first connection isn't reset on a cold start.
+await new Promise((resolve) => setTimeout(resolve, 1500));
+
+// Spawn tsx directly (not via `npm run`) so a SIGTERM reaches the real process
+// and nothing is left holding port 3000 after shutdown.
+const tsx = createRequire(import.meta.url).resolve("tsx/cli");
 const children = [
-  spawn("npm", ["run", "dev:worker"], { stdio: "inherit" }),
-  spawn("npm", ["run", "dev:api"], { stdio: "inherit" }),
+  spawn(process.execPath, [tsx, "src/worker.ts"], { stdio: "inherit" }),
+  spawn(process.execPath, [tsx, "src/api.ts"], { stdio: "inherit" }),
 ];
 let shuttingDown = false;
 function shutdown(exitCode = 0) {
@@ -48,7 +56,6 @@ for (const child of children) {
     }
   });
 }
-console.log("\nStarter is launching:");
-console.log("  App:         http://localhost:3000");
+console.log("\nJuniper Salon is launching:");
+console.log("  Staff app:   http://localhost:3000");
 console.log("  Temporal UI: http://localhost:8233\n");
-
